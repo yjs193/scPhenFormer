@@ -1,10 +1,10 @@
-# scPhenFormer
+# 🌟scPhenFormer
 
-scPhenFormer learns gene-aware pathway representations from single-cell
+scPhenFormer learns pathway representations from single-cell
 transcriptomes and aggregates pathway-aligned instances for patient phenotype
 prediction.
 
-## Repository structure
+## 📂 Repository structure
 
 ```text
 scPhenFormer/
@@ -20,9 +20,13 @@ scPhenFormer/
 ├── pyproject.toml
 └── README.md
 ```
+## 📊 Data Preparation
 
+The required datasets in this paper are hosted on Google Drive. You can download the complete data package from the link below:
 
-## Installation
+> 🔗 **Data Download Link:** [link](https://drive.google.com/drive/folders/1pn0MjqsHwBp-BIJQY3hkUAgjoAu23Ft7?usp=drive_link)
+
+## 🚀 Installation
 
 ```bash
 pip install -r requirements.txt
@@ -32,7 +36,7 @@ pip install -e . --no-deps
 Install a PyTorch build compatible with your GPU before training.
 
 
-## Patient phenotype prediction
+## 🚀 Patient phenotype prediction
 
 ```bash
 python scripts/main_finetune.py \
