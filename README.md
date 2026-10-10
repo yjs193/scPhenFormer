@@ -26,6 +26,16 @@ The required datasets in this paper are hosted on Google Drive. You can download
 
 > 🔗 **Data Download Link:** [link](https://drive.google.com/drive/folders/1pn0MjqsHwBp-BIJQY3hkUAgjoAu23Ft7?usp=drive_link)
 
+Fine-tuning requires `patient_id`, `label` and `split` in the H5AD observation
+metadata. The fixed `split` values must be `train`, `validation` and `test`;
+`val` is also accepted as an alias for `validation`. The code preserves these
+patient partitions and never generates new splits. Missing or inconsistent
+partitions raise an error.
+
+For COVID-19 leave-one-cohort-out evaluation, provide a separately prepared
+H5AD with the fixed patient partitions for each held-out cohort and run each
+fold independently. A COMBAT-held-out file represents only that fold.
+
 ## 🚀 Installation
 
 ```bash

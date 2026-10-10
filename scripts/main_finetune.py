@@ -29,9 +29,6 @@ def arguments() -> argparse.Namespace:
     parser.add_argument("--maximum-genes", type=int, default=2000)
     parser.add_argument("--context-genes", type=int, default=4000)
     parser.add_argument("--reuse-hvg", action="store_true")
-    parser.add_argument("--test-cohort", default="")
-    parser.add_argument("--cohort-column", default="cohort")
-    parser.add_argument("--split-seed", type=int, default=0)
     parser.add_argument("--maximum-lr", type=float, default=3e-4)
     parser.add_argument("--minimum-lr", type=float, default=1e-5)
     parser.add_argument("--warmup-epochs", type=int, default=1)
@@ -95,7 +92,7 @@ def main() -> None:
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     dataset = PatientDataset(
         args.data, args.vocab, args.maximum_genes, args.cells_per_patient,
-        args.context_genes, args.reuse_hvg, args.test_cohort, args.cohort_column, args.split_seed,
+        args.context_genes, args.reuse_hvg,
     )
     splits = {name: dataset.subset(name) for name in ("train", "validation", "test")}
     if min(len(rows) for rows in dataset.rows.values()) <= args.cells_per_patient:

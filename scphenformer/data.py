@@ -120,40 +120,25 @@ def collate_cells(batch: list[tuple[np.ndarray, np.ndarray]]) -> dict[str, torch
     return {"gene_ids": ids, "expression": values, "valid_genes": mask}
 
 
-def partition_patients(obs: pd.DataFrame, test_cohort: str, cohort_column: str, seed: int) -> pd.DataFrame:
-    from sklearn.model_selection import train_test_split
-
+def validate_patient_partitions(obs: pd.DataFrame) -> pd.DataFrame:
+    columns = ["patient_id", "label", "split"]
+    if not set(columns).issubset(obs):
+        raise ValueError("H5AD obs must contain patient_id, label and a predefined split")
+    if obs[columns].isna().any().any():
+        raise ValueError("Patient identifiers, phenotypes and splits cannot be missing")
     obs = obs.copy()
     obs["patient_id"] = obs["patient_id"].astype(str)
     obs["label"] = obs["label"].astype(str)
-    columns = ["patient_id", "label"] + ([cohort_column] if test_cohort else [])
-    if test_cohort and cohort_column not in obs:
-        raise ValueError(f"Leave-one-cohort-out evaluation requires obs[{cohort_column!r}]")
+    if obs[["patient_id", "label"]].apply(lambda column: column.str.strip().eq("")).any().any():
+        raise ValueError("Patient identifiers and phenotypes cannot be empty")
+    obs["split"] = obs["split"].astype(str).replace({"val": "validation"})
+    if not set(obs["split"]).issubset({"train", "validation", "test"}):
+        raise ValueError("Split values must be train, validation or test")
     patients = obs[columns].drop_duplicates()
     if patients["patient_id"].duplicated().any():
-        raise ValueError("Each patient must have one phenotype and one cohort")
-    if not test_cohort and "split" in obs:
-        return obs
-    if test_cohort:
-        is_test = patients[cohort_column].astype(str).eq(test_cohort)
-        if not is_test.any() or is_test.all():
-            raise ValueError("Test cohort must have patients and leave development patients")
-        test = patients.loc[is_test, "patient_id"].tolist()
-        development = patients.loc[~is_test]
-        train, validation = train_test_split(
-            development["patient_id"], test_size=0.1, stratify=development["label"], random_state=seed
-        )
-    else:
-        development, test_frame = train_test_split(
-            patients, test_size=0.15, stratify=patients["label"], random_state=seed
-        )
-        train, validation = train_test_split(
-            development["patient_id"], test_size=0.15 / 0.85,
-            stratify=development["label"], random_state=seed
-        )
-        test = test_frame["patient_id"].tolist()
-    lookup = {patient: split for split, ids in (("train", train), ("validation", validation), ("test", test)) for patient in ids}
-    obs["split"] = obs["patient_id"].map(lookup)
+        raise ValueError("A patient cannot cross labels or data partitions")
+    if set(patients["split"]) != {"train", "validation", "test"}:
+        raise ValueError("Predefined splits must include training, validation and test patients")
     return obs
 
 
@@ -161,20 +146,10 @@ class PatientDataset(CellDataset):
     def __init__(
         self, h5ad_path: str | Path, vocab_path: str | Path, maximum_genes: int = 2000,
         cells_per_patient: int = 300, context_genes: int = 4000, reuse_hvg: bool = False,
-        test_cohort: str = "", cohort_column: str = "cohort", split_seed: int = 0,
     ):
         super().__init__(h5ad_path, vocab_path, maximum_genes)
-        if not {"patient_id", "label"}.issubset(self.obs):
-            raise ValueError("H5AD obs must contain patient_id and label")
-        if self.obs[["patient_id", "label"]].isna().any().any():
-            raise ValueError("Patient identifiers and phenotypes cannot be missing")
-        self.obs = partition_patients(self.obs, test_cohort, cohort_column, split_seed)
-        self.obs["split"] = self.obs["split"].astype(str).replace({"val": "validation"})
-        if not set(self.obs["split"]).issubset({"train", "validation", "test"}):
-            raise ValueError("Split values must be train, validation or test")
+        self.obs = validate_patient_partitions(self.obs)
         patients = self.obs[["patient_id", "label", "split"]].drop_duplicates()
-        if patients["patient_id"].duplicated().any():
-            raise ValueError("A patient cannot cross labels or data partitions")
         self.patient_ids = patients["patient_id"].tolist()
         self.label_names = sorted(patients["label"].unique())
         self.label_to_index = {name: index for index, name in enumerate(self.label_names)}
