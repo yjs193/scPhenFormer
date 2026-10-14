@@ -47,7 +47,7 @@ The required datasets in this paper are hosted on Google Drive. You can download
 
 ------
 
-## 🚀 Installation
+## Installation
 
 ```bash
 pip install -r requirements.txt
@@ -58,13 +58,13 @@ pip install -e . --no-deps
 
 Install a PyTorch build compatible with your GPU before training.
 
-## 🚀 Pretraining
+## Pretraining
 ```bash
 python scripts/main_pretrain.py \
   --data "/path/data/..." \
 ```
 
-## 🚀 Patient phenotype prediction
+## Patient phenotype prediction
 
 ```bash
 python scripts/main_finetune.py \
