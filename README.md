@@ -58,7 +58,7 @@ pip install -e . --no-deps
 
 Install a PyTorch build compatible with your GPU before training.
 
-## Pretraining
+## 🚀 Pretraining
 ```bash
 python scripts/main_pretrain.py \
   --data "/path/data/..." \
