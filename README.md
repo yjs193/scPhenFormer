@@ -60,8 +60,8 @@ Install a PyTorch build compatible with your GPU before training.
 
 ## Pretraining
 ```bash
-  python scripts/main_pretrain.py \
-    --data "/path/data/..." \
+python scripts/main_pretrain.py \
+  --data "/path/data/..." \
 ```
 
 ## 🚀 Patient phenotype prediction
