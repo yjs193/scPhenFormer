@@ -1,8 +1,24 @@
-# 🌟scPhenFormer
+# scPhenFormer：Pathway-Informed Patient Phenotype Prediction from Single-Cell Transcriptomes
 
-scPhenFormer learns pathway representations from single-cell
-transcriptomes and aggregates pathway-aligned instances for patient phenotype
-prediction.
+The official code for "Adaptive Signature Learning for Niche-aware Spatial Transcriptomics Deconvolution".
+
+**scPhenFormer** is a deep learning framework that learns pathway representations from single-cell transcriptomes and aggregates pathway-aligned instances for patient phenotype prediction.
+
+------
+
+## 🌟 Key Innovations
+
+- **Pathway-Informed Representation**
+- **Patient-Level Pathway Aggregation**
+- **Pathway and Gene-Context Integration**
+
+The workflow of scPhenFormer includes:
+1. data.py: preprocess scRNA-seq data, construct gene–pathway mappings, and prepare patient-level cell samples.
+2. model.py: implement pathway-informed representation learning, patient-level pathway aggregation, and phenotype prediction.
+3. main_pretrain.py: pretrain the pathway encoder through masked gene-expression reconstruction.
+4. main_finetune.py: fine-tune the pretrained model for patient phenotype prediction and evaluate the performance.
+
+------
 
 ## 📂 Repository structure
 
@@ -20,21 +36,16 @@ scPhenFormer/
 ├── pyproject.toml
 └── README.md
 ```
+
+------
+
 ## 📊 Data Preparation
 
 The required datasets in this paper are hosted on Google Drive. You can download the complete data package from the link below:
 
 > 🔗 **Data Download Link:** [link](https://drive.google.com/drive/folders/1pn0MjqsHwBp-BIJQY3hkUAgjoAu23Ft7?usp=drive_link)
 
-Fine-tuning requires `patient_id`, `label` and `split` in the H5AD observation
-metadata. The fixed `split` values must be `train`, `validation` and `test`;
-`val` is also accepted as an alias for `validation`. The code preserves these
-patient partitions and never generates new splits. Missing or inconsistent
-partitions raise an error.
-
-For COVID-19 leave-one-cohort-out evaluation, provide a separately prepared
-H5AD with the fixed patient partitions for each held-out cohort and run each
-fold independently. A COMBAT-held-out file represents only that fold.
+------
 
 ## 🚀 Installation
 
@@ -43,8 +54,15 @@ pip install -r requirements.txt
 pip install -e . --no-deps
 ```
 
+------
+
 Install a PyTorch build compatible with your GPU before training.
 
+## Pretraining
+```bash
+  python scripts/main_pretrain.py \
+    --data "/path/data/..." \
+```
 
 ## 🚀 Patient phenotype prediction
 
